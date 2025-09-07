@@ -3,7 +3,7 @@ import re
 import json
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-# 각 부서마다 Agent를 손쉽게 생성하기 위해 class 선언.
+# 각 회사마다 Agent를 손쉽게 생성하기 위해 class 선언.
 class Agent:
     def __init__(self, checkpoint="K-intelligence/Midm-2.0-Mini-Instruct", tools=[], tool_repository={}):
         self.checkpoint = checkpoint

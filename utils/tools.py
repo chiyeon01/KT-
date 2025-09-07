@@ -1,19 +1,23 @@
 import streamlit as st
+from PyPDF2 import PdfReader
 
-def approach_agent(department: str, request: str) -> str:
+def approach_agent(company: str, request: str) -> str:
     """
-    부서 이름을 가지고 해당 부서의 Agent에게 연락을 취하여 답을 얻어주는 함수.
+    회사 이름을 가지고 해당 회사의 Agent에게 연락을 취하여 답을 얻어주는 함수.
 
     Args:
-        department: 부서 이름
-        request: 부서 Agent에게 요청하고 싶은 정보
+        company: 타 회사 이름
+        request: 타 회사 Agent에게 요청하고 싶은 정보
     """
 
-    agent_name = f"{department}_agent"
-    agent_message = f"{department}_message"
+    print(f"start {company} approach_agent")
+    print(f"request is {request}.")
+
+    agent_name = f"{company}_agent"
+    agent_message = f"{company}_message"
 
     if agent_name not in st.session_state.agent_dictionary:
-        return "해당 부서가 존재하지 않음"
+        return "해당 회사가 존재하지 않음"
     
     agent = st.session_state.agent_dictionary[agent_name]
 
@@ -29,19 +33,27 @@ def approach_agent(department: str, request: str) -> str:
 
     return result
 
-def search_docs(department: str) -> str:
+def search_docs(company: str) -> str:
     """
-    원하는 부서의 문서에 접근해서 정보를 가져오는 함수.
+    원하는 회사의 문서에 접근해서 정보를 가져오는 함수.(사실상 자기 자신의 회사)
 
     Args:
-        department: 문서를 찾길 원하는 부서. 종류는 "기획1팀", "기획2팀", "영업1팀", "영업2팀", "영업3팀", "경영1팀", "경영2팀", "경영3팀"이 있다.
+        company: 문서를 찾길 원하는 회사. 종류는 "A회사", "B회사", "C회사", "D회사", "E회사", "F회사", "G회사", "H회사"이 있다.
     """
 
-    docs_name = f"{department}_docs"
+    print(f"{company} search_docs")
+
+    docs_name = f"{company}_docs"
 
     if docs_name not in st.session_state.docs_dictionary:
         return "해당 문서는 존재하지 않음."
     
-    output_docs = st.session_state.docs_dictionary[docs_name]
+    uploaded_docs = st.session_state.docs_dictionary[docs_name]
 
-    return output_docs
+    pdf = PdfReader(uploaded_docs)
+
+    company_docs = ""
+    for page in pdf.pages:
+        company_docs += company_docs.extract_text()
+
+    return company_docs
