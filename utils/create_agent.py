@@ -1,15 +1,34 @@
 import torch
 import re
 import json
+import streamlit as st
 from transformers import AutoTokenizer, AutoModelForCausalLM
+
+
+@st.cache_resource
+def load_agent(checkpoint="K-intelligence/Midm-2.0-Mini-Instruct", _tools=[], _tool_repository={}):
+    return Agent(checkpoint=checkpoint, tools=_tools, tool_repository=_tool_repository)
 
 # 각 회사마다 Agent를 손쉽게 생성하기 위해 class 선언.
 class Agent:
     def __init__(self, checkpoint="K-intelligence/Midm-2.0-Mini-Instruct", tools=[], tool_repository={}):
         self.checkpoint = checkpoint
         self.tool_repository = tool_repository
-        self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint)
-        self.model = AutoModelForCausalLM.from_pretrained(self.checkpoint, dtype=torch.float16, device_map="auto")
+
+        print("tokenizer 생성중...")
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            self.checkpoint, 
+            )
+        print("tokenizer 생성 완료✔")
+        
+        print("model 생성중...")
+        self.model = AutoModelForCausalLM.from_pretrained(
+            self.checkpoint, 
+            dtype=torch.float16, 
+            device_map="auto",
+            low_cpu_mem_usage=True
+            )
+        print("model 생성 완료✔")
 
         if tools:
             self.tools = tools
@@ -19,6 +38,7 @@ class Agent:
 
     # messages는 chat_template 형식으로 들어와야 함.
     def run(self, messages):
+        print("답변 생성중...")
         inputs = self.tokenizer.apply_chat_template(messages, tools=self.tools, add_generation_prompt=True, return_dict=True, return_tensors="pt")
         model_outputs = self.model.generate(input_ids=inputs["input_ids"], attention_mask=inputs["attention_mask"], max_new_tokens=128)
         model_output = self.tokenizer.decode(model_outputs[0][len(inputs["input_ids"][0]):-1])

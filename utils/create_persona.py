@@ -5,10 +5,10 @@ def create_persona(department: str, description: str) -> str:
     회사의 설명은 다음과 같다. '{description}' 
     너는 너가 가진 도구를 최대한 이용하여 사용자의 답변에 답한다."""
 
-    system_prompt = {
+    system_prompt = [{
         "role": "system",
         "content": prompt
-    }
+    }]
 
     return system_prompt
 
